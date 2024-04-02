@@ -1,4 +1,5 @@
 import { StatusBar } from "expo-status-bar";
+import { useEffect,useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,36 +10,37 @@ import {
 } from "react-native";
 import Header from "./composant/Header";
 
-const SectionSelection = () => {
-  text = "SÉLECTIONNER UN ÉTUDIANT"
+const Etudiant = (id, nom, session, cours) =>{
+  <View>
+    <Text></Text>
+  </View>
+
+  
+}
+const SectionSelection = ({/**idInput, text,listeEtudiants*/}) => {
+  
+
+  text = "SÉLECTIONNER UN ÉTUDIANT";
   return (
-    <View>
+    <View style={styles.selectionContainerStyle}>
       <Input titre={"Id"} />
       <Text>Aucun étudiant séléctionné</Text>
-      <Button text={text}/>
+      <Button text={text} />
       <Text>Confirmé votre Séléction</Text>
     </View>
   );
 };
 
 const SectionAjouterAUCours = () => {
-
-  return(
-    <View>
+  return (
+    <View style={styles.ajouterAuCoursContainer}>
       <Input titre={"Session"} />
-      <Input titre={"Enregistrer élève au cour"}/>
-      
-
-
-      
-
+      <Input titre={"Enregistrer élève au cour"} />
     </View>
-  )
-}
+  );
+};
 
 const Input = ({ titre, text, textChanged, type } = {}) => {
-  
-
   return (
     <View>
       <Text style={styles.inputName}>{titre}</Text>
@@ -52,9 +54,8 @@ const Input = ({ titre, text, textChanged, type } = {}) => {
   );
 };
 
-const Button = ({text}) =>{
-  
-  return(
+const Button = ({ text }) => {
+  return (
     <View>
       <TouchableOpacity
         style={[styles.buttonStyle, { backgroundColor: "#2199de" }]}
@@ -63,18 +64,42 @@ const Button = ({text}) =>{
         <Text style={styles.buttonText}>{text}</Text>
       </TouchableOpacity>
     </View>
-
-
-  )
-}
+  );
+};
 export default function App() {
+  const URLDATA = "https://raw.githubusercontent.com/thebenoit/Inscription/main/listeEtudiant.json"
+  const [data,setData] = useEffect
+  //liste d'étudiant
+  const [listeEtudiants, setListeEtudiants] = useState([]);
+
+  const [inputId, setInputId] = useState();
+
+  useEffect(() => {
+    fetchTask(URLDATA)
+    
+  })
+
+  const fetchTask = (url) => {
+    //fetch URL et transforme ;a reponse en Json
+    fetch(
+      url
+    )
+      .then((res) => res.json())
+      //update le data avec la liste des todos
+      .then((listeEtudiants) => {
+        setListeEtudiants(listeEtudiants);
+      })
+      .catch((error) => {
+        console.log(`Erreur ${error}`);
+      });
+  };
   return (
     <View style={styles.container}>
       <Header titre="Inscriptions au cours" couleurFond="blue" />
-      <SectionSelection />
-      <SectionAjouterAUCours/>
-      <Button text={"Enregistrer"}/>
-      <Button text={"Afficher"}/>
+      <SectionSelection  />
+      <SectionAjouterAUCours />
+      <Button text={"Enregistrer"} />
+      <Button text={"Afficherer"} />
       <StatusBar style="auto" />
     </View>
   );
@@ -87,9 +112,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',*/
   },
+  selectionContainerStyle: {
+    margin: 15,
+  },
+  ajouterAuCoursContainer:{
+    margin: 15,
+
+  },
   InputBoxStyle: {
     borderColor: "black",
-    borderWidth: 1,
+    borderWidth: 0.5,
     marginBottom: 10,
     marginLeft: 15,
     marginRight: 15,
