@@ -68,7 +68,11 @@ const Button = ({ text }) => {
 };
 export default function App() {
   const URLDATA = "https://raw.githubusercontent.com/thebenoit/Inscription/main/listeEtudiant.json"
-  const [data,setData] = useEffect
+  //const [data,setData] = useEffect
+  const [etudiantSelectionner, setEtudiantSelectionner] = useState({
+    id: ""
+    Nom:"A"
+  })
   //liste d'étudiant
   const [listeEtudiants, setListeEtudiants] = useState([]);
 
