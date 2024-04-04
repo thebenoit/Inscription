@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,24 +7,47 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  Image,
 } from "react-native";
 import Header from "./composant/Header";
 
-const Etudiant = (id, nom, session, cours) =>{
-  <View>
-    <Text></Text>
-  </View>
+const EtudiantPic = ({ props }) => {
+  return (
+    <Image
+      style={styles.imageFormat}
+      source={{
+        uri: `${props}`,
+      }}
+    />
+  );
+};
 
-  
-}
-const SectionSelection = ({/**idInput, text,listeEtudiants*/}) => {
-  
-
+const Etudiant = ({ id, nom, session, cours, uriPic }) => {
+  return (
+    <View style={styles.EtudiantContainer}>
+      <EtudiantPic props={uriPic} />
+      <Text style={{ padding: 10, fontSize: 15, margin: 10 }}>{nom}</Text>
+    </View>
+  );
+};
+const SectionSelection = ({
+  idInput,
+  onChangeText,
+  id,
+  nomEtudiantSelectionner,
+  imageURl,
+  listeEtudiants,
+}) => {
   text = "SÉLECTIONNER UN ÉTUDIANT";
   return (
     <View style={styles.selectionContainerStyle}>
-      <Input titre={"Id"} />
-      <Text>Aucun étudiant séléctionné</Text>
+      <Input 
+      titre={"Id"}
+      text={idInput}
+      textChanged={onChangeText}
+
+       />
+      <Etudiant nom={nomEtudiantSelectionner} uriPic={imageURl} />
       <Button text={text} />
       <Text>Confirmé votre Séléction</Text>
     </View>
@@ -67,40 +90,89 @@ const Button = ({ text }) => {
   );
 };
 export default function App() {
-  const URLDATA = "https://raw.githubusercontent.com/thebenoit/Inscription/main/listeEtudiant.json"
-  //const [data,setData] = useEffect
+  const URLDATA =
+    "https://raw.githubusercontent.com/thebenoit/Inscription/main/listeEtudiant.json";
+  //rconst [data,setData] = useState("");
   const [etudiantSelectionner, setEtudiantSelectionner] = useState({
-    id: ""
-    Nom:"A"
-  })
+    id: "00",
+    Nom: "Aucun Etudiant selectionné",
+    uriPic:
+      "https://i.pinimg.com/736x/dc/08/0f/dc080fd21b57b382a1b0de17dac1dfe6.jpg",
+  });
   //liste d'étudiant
   const [listeEtudiants, setListeEtudiants] = useState([]);
 
-  const [inputId, setInputId] = useState();
+  const [inputId, setInputId] = useState("00");
+  useEffect(() => {
+    console.log("listFetch1: ", listeEtudiants);
+    compareId();
+  }, [listeEtudiants]);
 
   useEffect(() => {
-    fetchTask(URLDATA)
-    
-  })
+    // Appeler fetchTask une seule fois lors du montage initial
+    fetchTask(URLDATA);
+  }, [inputId, setListeEtudiants]);
 
   const fetchTask = (url) => {
     //fetch URL et transforme ;a reponse en Json
-    fetch(
-      url
-    )
+    fetch(url)
       .then((res) => res.json())
       //update le data avec la liste des todos
-      .then((listeEtudiants) => {
-        setListeEtudiants(listeEtudiants);
+      .then((data) => {
+        setListeEtudiants(data);
+
+        console.log("listFetch: ", listeEtudiants);
+        console.log("Data: ", data);
       })
+
       .catch((error) => {
         console.log(`Erreur ${error}`);
       });
   };
+
+  /**
+   * methode qui compare id de l'étudiant avec input mit
+   *
+   * @param {*} inputId
+   * @param {*} listeEtudiant
+   */
+  const compareId = () => {
+    // Recherche de l'étudiant correspondant à l'inputId
+    const etudiant = listeEtudiants.find(
+      (etudiant) => etudiant.id_etudiant === inputId
+    );
+    console.log("etudinat: ", etudiant);
+    console.log("inputId: ", inputId);
+    console.log("list: ", listeEtudiants);
+
+    // Si un étudiant correspond à l'inputId, mettre à jour etudiantSelectionner avec ses informations
+    if (etudiant) {
+      setEtudiantSelectionner({
+        id: etudiant.id_etudiant,
+        Nom: etudiant.nom,
+        uriPic: etudiant.image_url,
+      });
+    } else {
+      // Si aucun étudiant ne correspond à l'inputId, mettre à jour avec les valeurs par défaut
+      setEtudiantSelectionner({
+        id: "00",
+        Nom: "Aucun Etudiant selectionné",
+        uriPic:
+          "https://i.pinimg.com/736x/dc/08/0f/dc080fd21b57b382a1b0de17dac1dfe6.jpg",
+      });
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Header titre="Inscriptions au cours" couleurFond="blue" />
-      <SectionSelection  />
+      <Header titre="Inscriptions au cours" couleurFond="#6e7276" />
+      <SectionSelection
+        idInput={inputId}
+        listeEtudiants={listeEtudiants}
+        nomEtudiantSelectionner={etudiantSelectionner.Nom}
+        imageURl={etudiantSelectionner.uriPic}
+        onChangeText={setInputId}
+      />
       <SectionAjouterAUCours />
       <Button text={"Enregistrer"} />
       <Button text={"Afficherer"} />
@@ -119,9 +191,8 @@ const styles = StyleSheet.create({
   selectionContainerStyle: {
     margin: 15,
   },
-  ajouterAuCoursContainer:{
+  ajouterAuCoursContainer: {
     margin: 15,
-
   },
   InputBoxStyle: {
     borderColor: "black",
@@ -147,5 +218,19 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 5,
     margin: 5,
+  },
+  imageFormat: {
+    width: 110,
+    height: 110,
+    paddingRight: 10,
+  },
+  EtudiantContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    borderBottomColor: "#DDD",
+    borderBottomWidth: 2,
+    alignItems: "center",
+    paddingTop: 5,
+    margin: 15,
   },
 });
