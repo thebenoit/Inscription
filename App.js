@@ -37,19 +37,20 @@ const SectionSelection = ({
   nomEtudiantSelectionner,
   imageURl,
   listeEtudiants,
+  selectionner,
+  selectionnerEleve
 }) => {
   text = "SÉLECTIONNER UN ÉTUDIANT";
   return (
     <View style={styles.selectionContainerStyle}>
-      <Input 
-      titre={"Id"}
-      text={idInput}
-      textChanged={onChangeText}
-
-       />
+      <Input titre={"Id"} text={idInput} textChanged={onChangeText} />
       <Etudiant nom={nomEtudiantSelectionner} uriPic={imageURl} />
-      <Button text={text} />
-      <Text>Confirmé votre Séléction</Text>
+      <Button 
+      text={text}
+      selectionnerEleve={selectionnerEleve} />
+      <Text style={{ color: "red", textAlign: "center", fontSize: 20 }}>
+        {selectionner ? "Élève sélectionné" : "Confirmé votre Sélection"}
+      </Text>
     </View>
   );
 };
@@ -77,12 +78,12 @@ const Input = ({ titre, text, textChanged, type } = {}) => {
   );
 };
 
-const Button = ({ text }) => {
+const Button = ({ text, selectionner,selectionnerEleve }) => {
   return (
     <View>
       <TouchableOpacity
         style={[styles.buttonStyle, { backgroundColor: "#2199de" }]}
-        onPress={() => Alert.alert("allo")}
+        onPress={() => selectionnerEleve()}
       >
         <Text style={styles.buttonText}>{text}</Text>
       </TouchableOpacity>
@@ -92,7 +93,7 @@ const Button = ({ text }) => {
 export default function App() {
   const URLDATA =
     "https://raw.githubusercontent.com/thebenoit/Inscription/main/listeEtudiant.json";
-  //rconst [data,setData] = useState("");
+
   const [etudiantSelectionner, setEtudiantSelectionner] = useState({
     id: "00",
     Nom: "Aucun Etudiant selectionné",
@@ -103,8 +104,9 @@ export default function App() {
   const [listeEtudiants, setListeEtudiants] = useState([]);
 
   const [inputId, setInputId] = useState("00");
+
+  const [selectionner, setSelectionner] = useState(false);
   useEffect(() => {
-    console.log("listFetch1: ", listeEtudiants);
     compareId();
   }, [listeEtudiants]);
 
@@ -113,6 +115,10 @@ export default function App() {
     fetchTask(URLDATA);
   }, [inputId, setListeEtudiants]);
 
+  const selectionnerEleve = () => {
+    setSelectionner(true);
+  };
+
   const fetchTask = (url) => {
     //fetch URL et transforme ;a reponse en Json
     fetch(url)
@@ -120,9 +126,6 @@ export default function App() {
       //update le data avec la liste des todos
       .then((data) => {
         setListeEtudiants(data);
-
-        console.log("listFetch: ", listeEtudiants);
-        console.log("Data: ", data);
       })
 
       .catch((error) => {
@@ -141,9 +144,6 @@ export default function App() {
     const etudiant = listeEtudiants.find(
       (etudiant) => etudiant.id_etudiant === inputId
     );
-    console.log("etudinat: ", etudiant);
-    console.log("inputId: ", inputId);
-    console.log("list: ", listeEtudiants);
 
     // Si un étudiant correspond à l'inputId, mettre à jour etudiantSelectionner avec ses informations
     if (etudiant) {
@@ -172,6 +172,8 @@ export default function App() {
         nomEtudiantSelectionner={etudiantSelectionner.Nom}
         imageURl={etudiantSelectionner.uriPic}
         onChangeText={setInputId}
+        selectionner={selectionner}
+        selectionnerEleve={selectionnerEleve}
       />
       <SectionAjouterAUCours />
       <Button text={"Enregistrer"} />
@@ -182,12 +184,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    /* flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',*/
-  },
+  container: {},
   selectionContainerStyle: {
     margin: 15,
   },
