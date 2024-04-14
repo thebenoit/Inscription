@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
   Image,
+  Modal,
 } from "react-native";
 import Header from "./composant/Header";
 
@@ -38,16 +39,14 @@ const SectionSelection = ({
   imageURl,
   listeEtudiants,
   selectionner,
-  selectionnerEleve
+  selectionnerEleve,
 }) => {
   text = "SÉLECTIONNER UN ÉTUDIANT";
   return (
     <View style={styles.selectionContainerStyle}>
       <Input titre={"Id"} text={idInput} textChanged={onChangeText} />
       <Etudiant nom={nomEtudiantSelectionner} uriPic={imageURl} />
-      <Button 
-      text={text}
-      selectionnerEleve={selectionnerEleve} />
+      <Button text={text} action={selectionnerEleve} />
       <Text style={{ color: "red", textAlign: "center", fontSize: 20 }}>
         {selectionner ? "Élève sélectionné" : "Confirmé votre Sélection"}
       </Text>
@@ -55,11 +54,33 @@ const SectionSelection = ({
   );
 };
 
-const SectionAjouterAUCours = () => {
+const SectionAjouterAUCours = ({
+  session,
+  sessionTextChanged,
+  cours,
+  coursTextChanged,
+  enregistrer
+}) => {
   return (
     <View style={styles.ajouterAuCoursContainer}>
-      <Input titre={"Session"} />
-      <Input titre={"Enregistrer élève au cour"} />
+      <Input
+        titre={"Session"}
+        text={session}
+        textChanged={sessionTextChanged}
+      />
+      <Input
+        titre={"Enregistrer élève au cours"}
+        text={cours}
+        textChanged={coursTextChanged}
+      />
+
+      <Button 
+      text={"Enregistrer"}
+      action={enregistrer}
+      param1={session}
+      param2={cours}
+       />
+      <Button text={"Afficher"} />
     </View>
   );
 };
@@ -78,12 +99,12 @@ const Input = ({ titre, text, textChanged, type } = {}) => {
   );
 };
 
-const Button = ({ text, selectionner,selectionnerEleve }) => {
+const Button = ({ text, selectionner, action,param1,param2 }) => {
   return (
     <View>
       <TouchableOpacity
         style={[styles.buttonStyle, { backgroundColor: "#2199de" }]}
-        onPress={() => selectionnerEleve()}
+        onPress={() => action(param1,param2)}
       >
         <Text style={styles.buttonText}>{text}</Text>
       </TouchableOpacity>
@@ -97,15 +118,20 @@ export default function App() {
   const [etudiantSelectionner, setEtudiantSelectionner] = useState({
     id: "00",
     Nom: "Aucun Etudiant selectionné",
+    session: "",
     uriPic:
       "https://i.pinimg.com/736x/dc/08/0f/dc080fd21b57b382a1b0de17dac1dfe6.jpg",
+    cours: [],
   });
   //liste d'étudiant
   const [listeEtudiants, setListeEtudiants] = useState([]);
 
   const [inputId, setInputId] = useState("00");
+  const [inputSession, setInputSession] = useState("");
+  const [inputcours, setInputcours] = useState("");
 
   const [selectionner, setSelectionner] = useState(false);
+
   useEffect(() => {
     compareId();
   }, [listeEtudiants]);
@@ -150,7 +176,9 @@ export default function App() {
       setEtudiantSelectionner({
         id: etudiant.id_etudiant,
         Nom: etudiant.nom,
+        session: etudiant.session,
         uriPic: etudiant.image_url,
+        cours: etudiant.cours,
       });
     } else {
       // Si aucun étudiant ne correspond à l'inputId, mettre à jour avec les valeurs par défaut
@@ -163,9 +191,42 @@ export default function App() {
     }
   };
 
+  const enregistrer = (session, leCours) => {
+    let length = etudiantSelectionner.cours.length;
+    let coursModifier = etudiantSelectionner.cours;
+
+    const coursDejaLa = listeEtudiants.some(
+      (etudiant) => etudiant.cours.includes(leCours)
+    );
+
+    //si selectionner == true
+    if (selectionner) {
+      setEtudiantSelectionner({
+        ...etudiantSelectionner,
+        session: session,
+      });
+
+      if (length <= 5 && leCours != undefined && coursDejaLa === false ) {
+        //rentre le data dans le tableau coursModifier
+        coursModifier.push(leCours);
+        setEtudiantSelectionner({
+          ...etudiantSelectionner,
+          cours: coursModifier,
+        });
+        console.log("cours: ",etudiantSelectionner.cours)
+        console.log("Session:", session)
+        console.log("Cours déjà là ?:", coursDejaLa)
+      }else{
+        Alert,alert(`La liste est trop longue: ${length} ou le cours est vide: ${leCours}`)
+      }
+    } else {
+      Alert.alert("Aucun élève selectionner");
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Header titre="Inscriptions au cours" couleurFond="#6e7276" />
+      <Header titre="Inscriptions au cours" couleurFond="white" />
       <SectionSelection
         idInput={inputId}
         listeEtudiants={listeEtudiants}
@@ -175,9 +236,14 @@ export default function App() {
         selectionner={selectionner}
         selectionnerEleve={selectionnerEleve}
       />
-      <SectionAjouterAUCours />
-      <Button text={"Enregistrer"} />
-      <Button text={"Afficherer"} />
+      <SectionAjouterAUCours
+        session={inputSession}
+        sessionTextChanged={setInputSession}
+        cours={inputcours}
+        coursTextChanged={setInputcours}
+        enregistrer={enregistrer}
+      />
+
       <StatusBar style="auto" />
     </View>
   );

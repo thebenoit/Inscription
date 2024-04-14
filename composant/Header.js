@@ -15,12 +15,14 @@ const styles = StyleSheet.create({
         height: 70,
         alignItems: 'center',
         justifyContent: 'center',
+        margin:15
     },
     title:{
-        color: "white",
+        color: "black",
         fontSize: 28,
         fontWeight: '500',
-        textTransform: 'uppercase' 
+        textTransform: 'uppercase', 
+    
     }
 });
 
