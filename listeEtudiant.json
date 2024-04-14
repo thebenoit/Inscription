@@ -1,5 +1,5 @@
 [
-    {"id_etudiant": "00", "nom": "Aucun étudiant sélectionné", "session": "1", "cours": [],"image_url":"https://i.pinimg.com/736x/dc/08/0f/dc080fd21b57b382a1b0de17dac1dfe6.jpg"},
+    {"id_etudiant": "00", "nom": "Aucun étudiant sélectionné", "session": "0", "cours": ["no_course"],"image_url":"https://i.pinimg.com/736x/dc/08/0f/dc080fd21b57b382a1b0de17dac1dfe6.jpg"},
     {"id_etudiant": "01", "nom": "Gon Freecs", "session": "1", "cours": ["Prog1"],"image_url":"https://i.pinimg.com/564x/04/55/b0/0455b04546d05f0278565200432b9ca6.jpg"},
     {"id_etudiant": "02", "nom": "Killua Zoldyck", "session": "2", "cours": ["Prog2", "Info 101"],"image_url":"https://i.pinimg.com/564x/05/7f/c7/057fc79593f0ca59b83ad0b2a3595683.jpg"},
     {"id_etudiant": "03", "nom": "Merruem", "session": "3", "cours": ["Anglais 101", "Physiques 201", "Bio 203"],"image_url":"https://i.pinimg.com/564x/a2/7c/81/a27c81d6a87fb6bd756561228af14425.jpg"},
