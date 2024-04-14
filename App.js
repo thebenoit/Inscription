@@ -9,6 +9,7 @@ import {
   Alert,
   Image,
   Modal,
+  Pressable
 } from "react-native";
 import Header from "./composant/Header";
 
@@ -59,7 +60,8 @@ const SectionAjouterAUCours = ({
   sessionTextChanged,
   cours,
   coursTextChanged,
-  enregistrer
+  enregistrer,
+  afficher
 }) => {
   return (
     <View style={styles.ajouterAuCoursContainer}>
@@ -77,10 +79,11 @@ const SectionAjouterAUCours = ({
       <Button 
       text={"Enregistrer"}
       action={enregistrer}
-      param1={session}
-      param2={cours}
        />
-      <Button text={"Afficher"} />
+      <Button 
+      text={"Afficher"}
+      action={afficher}
+       />
     </View>
   );
 };
@@ -99,18 +102,59 @@ const Input = ({ titre, text, textChanged, type } = {}) => {
   );
 };
 
-const Button = ({ text, selectionner, action,param1,param2 }) => {
+const Button = ({ text, selectionner,action }) => {
+
   return (
     <View>
       <TouchableOpacity
         style={[styles.buttonStyle, { backgroundColor: "#2199de" }]}
-        onPress={() => action(param1,param2)}
+        onPress={() => action()}
       >
         <Text style={styles.buttonText}>{text}</Text>
       </TouchableOpacity>
     </View>
   );
 };
+  const AfficherEtudiantSelectionner = ({modalVisible,etudiant,fermerModal}) =>{
+
+    const Fermer = "Fermer";
+
+
+    return(
+      <Modal 
+      visible={modalVisible} 
+      transparent={true} 
+      animationType="slide"
+      onRequestClose={() => {        
+        fermerModal()
+      }}
+      >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+        <Text>ID: {etudiant.id}</Text>
+        <Text>Nom: {etudiant.Nom}</Text>
+        <Text>Session: {etudiant.session}</Text>
+        <Image source={{ uri: etudiant.uriPic }} style={{ width: 100, height: 100 }} />
+        <Text>Cours:</Text>
+        <View>
+         
+          {etudiant.cours.map((cours, index) => (
+            <Text key={index}>{cours}</Text>
+          ))}
+        </View>
+       <Button
+       text={Fermer}
+       action={fermerModal}
+
+       />
+        </View>
+        
+        
+        
+      </View>
+    </Modal>
+    )
+  }
 export default function App() {
   const URLDATA =
     "https://raw.githubusercontent.com/thebenoit/Inscription/main/listeEtudiant.json";
@@ -118,19 +162,20 @@ export default function App() {
   const [etudiantSelectionner, setEtudiantSelectionner] = useState({
     id: "00",
     Nom: "Aucun Etudiant selectionné",
-    session: "",
+    session: "0",
     uriPic:
       "https://i.pinimg.com/736x/dc/08/0f/dc080fd21b57b382a1b0de17dac1dfe6.jpg",
-    cours: [],
+    cours: ["no_course"],
   });
   //liste d'étudiant
   const [listeEtudiants, setListeEtudiants] = useState([]);
-
   const [inputId, setInputId] = useState("00");
   const [inputSession, setInputSession] = useState("");
   const [inputcours, setInputcours] = useState("");
-
   const [selectionner, setSelectionner] = useState(false);
+  //determine is the modal is visible or not
+  const [modalVisible, setModalVisible] = useState(false);
+
 
   useEffect(() => {
     compareId();
@@ -139,11 +184,22 @@ export default function App() {
   useEffect(() => {
     // Appeler fetchTask une seule fois lors du montage initial
     fetchTask(URLDATA);
+    
   }, [inputId, setListeEtudiants]);
+  //chaque fois que je change le ID reset les TextInput et le booleen selection
+  useEffect( () => {
+  
+    setInputSession("")
+    setInputcours("")
+    setSelectionner(false)
+  },[inputId])
 
   const selectionnerEleve = () => {
     setSelectionner(true);
   };
+
+  const rendreVisible = () => (setModalVisible(true))
+  const rendreInVisible = () => (setModalVisible(false))
 
   const fetchTask = (url) => {
     //fetch URL et transforme ;a reponse en Json
@@ -187,37 +243,39 @@ export default function App() {
         Nom: "Aucun Etudiant selectionné",
         uriPic:
           "https://i.pinimg.com/736x/dc/08/0f/dc080fd21b57b382a1b0de17dac1dfe6.jpg",
+        session:"0",
+        cours:["no_course"]  
       });
     }
   };
 
-  const enregistrer = (session, leCours) => {
+  const enregistrer = () => {
     let length = etudiantSelectionner.cours.length;
     let coursModifier = etudiantSelectionner.cours;
 
     const coursDejaLa = listeEtudiants.some(
-      (etudiant) => etudiant.cours.includes(leCours)
-    );
+      (etudiant) => etudiant.cours.includes(inputId)
+    ); 
 
     //si selectionner == true
     if (selectionner) {
       setEtudiantSelectionner({
         ...etudiantSelectionner,
-        session: session,
+        session:inputSession,
       });
 
-      if (length <= 5 && leCours != undefined && coursDejaLa === false ) {
+      if (length <= 5 && inputcours != undefined && coursDejaLa === false ) {
         //rentre le data dans le tableau coursModifier
-        coursModifier.push(leCours);
+        coursModifier.push(inputcours);
         setEtudiantSelectionner({
           ...etudiantSelectionner,
           cours: coursModifier,
         });
         console.log("cours: ",etudiantSelectionner.cours)
-        console.log("Session:", session)
+        //console.log("Session:", session)
         console.log("Cours déjà là ?:", coursDejaLa)
       }else{
-        Alert,alert(`La liste est trop longue: ${length} ou le cours est vide: ${leCours}`)
+        Alert,alert(`La liste est trop longue: ${length} ou le cours est vide: ${inputcours}, session: ${inputSession}`)
       }
     } else {
       Alert.alert("Aucun élève selectionner");
@@ -242,8 +300,13 @@ export default function App() {
         cours={inputcours}
         coursTextChanged={setInputcours}
         enregistrer={enregistrer}
+        afficher={rendreVisible}
       />
-
+      <AfficherEtudiantSelectionner
+      etudiant={etudiantSelectionner}
+      modalVisible={modalVisible}
+      fermerModal={rendreInVisible}
+      />
       <StatusBar style="auto" />
     </View>
   );
@@ -295,5 +358,34 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 5,
     margin: 15,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // semi-transparent black background
+  },
+  modalContent: {
+    width: 300,
+    height: 300,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+  }, buttonClose: {
+    backgroundColor: '#2196F3',
+  },
+  buttonClose: {
+    backgroundColor: '#2196F3',
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
