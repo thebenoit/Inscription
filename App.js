@@ -9,8 +9,10 @@ import {
   Alert,
   Image,
   Modal,
-  Pressable
+  Pressable,
 } from "react-native";
+import { I18n } from "i18n-js";
+
 import Header from "./composant/Header";
 
 const EtudiantPic = ({ props }) => {
@@ -61,7 +63,7 @@ const SectionAjouterAUCours = ({
   cours,
   coursTextChanged,
   enregistrer,
-  afficher
+  afficher,
 }) => {
   return (
     <View style={styles.ajouterAuCoursContainer}>
@@ -76,14 +78,8 @@ const SectionAjouterAUCours = ({
         textChanged={coursTextChanged}
       />
 
-      <Button 
-      text={"Enregistrer"}
-      action={enregistrer}
-       />
-      <Button 
-      text={"Afficher"}
-      action={afficher}
-       />
+      <Button text={"Enregistrer"} action={enregistrer} />
+      <Button text={"Afficher"} action={afficher} />
     </View>
   );
 };
@@ -102,8 +98,7 @@ const Input = ({ titre, text, textChanged, type } = {}) => {
   );
 };
 
-const Button = ({ text, selectionner,action }) => {
-
+const Button = ({ text, selectionner, action }) => {
   return (
     <View>
       <TouchableOpacity
@@ -115,46 +110,43 @@ const Button = ({ text, selectionner,action }) => {
     </View>
   );
 };
-  const AfficherEtudiantSelectionner = ({modalVisible,etudiant,fermerModal}) =>{
+const AfficherEtudiantSelectionner = ({
+  modalVisible,
+  etudiant,
+  fermerModal,
+}) => {
+  const Fermer = "Fermer";
 
-    const Fermer = "Fermer";
-
-
-    return(
-      <Modal 
-      visible={modalVisible} 
-      transparent={true} 
+  return (
+    <Modal
+      visible={modalVisible}
+      transparent={true}
       animationType="slide"
-      onRequestClose={() => {        
-        fermerModal()
+      onRequestClose={() => {
+        fermerModal();
       }}
-      >
+    >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-        <Text>ID: {etudiant.id}</Text>
-        <Text>Nom: {etudiant.Nom}</Text>
-        <Text>Session: {etudiant.session}</Text>
-        <Image source={{ uri: etudiant.uriPic }} style={{ width: 100, height: 100 }} />
-        <Text>Cours:</Text>
-        <View>
-         
-          {etudiant.cours.map((cours, index) => (
-            <Text key={index}>{cours}</Text>
-          ))}
+          <Text>ID: {etudiant.id}</Text>
+          <Text>Nom: {etudiant.Nom}</Text>
+          <Text>Session: {etudiant.session}</Text>
+          <Image
+            source={{ uri: etudiant.uriPic }}
+            style={{ width: 100, height: 100 }}
+          />
+          <Text>Cours:</Text>
+          <View>
+            {etudiant.cours.map((cours, index) => (
+              <Text key={index}>{cours}</Text>
+            ))}
+          </View>
+          <Button text={Fermer} action={fermerModal} />
         </View>
-       <Button
-       text={Fermer}
-       action={fermerModal}
-
-       />
-        </View>
-        
-        
-        
       </View>
     </Modal>
-    )
-  }
+  );
+};
 export default function App() {
   const URLDATA =
     "https://raw.githubusercontent.com/thebenoit/Inscription/main/listeEtudiant.json";
@@ -176,7 +168,6 @@ export default function App() {
   //determine is the modal is visible or not
   const [modalVisible, setModalVisible] = useState(false);
 
-
   useEffect(() => {
     compareId();
   }, [listeEtudiants]);
@@ -184,22 +175,20 @@ export default function App() {
   useEffect(() => {
     // Appeler fetchTask une seule fois lors du montage initial
     fetchTask(URLDATA);
-    
   }, [inputId, setListeEtudiants]);
   //chaque fois que je change le ID reset les TextInput et le booleen selection
-  useEffect( () => {
-  
-    setInputSession("")
-    setInputcours("")
-    setSelectionner(false)
-  },[inputId])
+  useEffect(() => {
+    setInputSession("");
+    setInputcours("");
+    setSelectionner(false);
+  }, [inputId]);
 
   const selectionnerEleve = () => {
     setSelectionner(true);
   };
 
-  const rendreVisible = () => (setModalVisible(true))
-  const rendreInVisible = () => (setModalVisible(false))
+  const rendreVisible = () => setModalVisible(true);
+  const rendreInVisible = () => setModalVisible(false);
 
   const fetchTask = (url) => {
     //fetch URL et transforme ;a reponse en Json
@@ -243,8 +232,8 @@ export default function App() {
         Nom: "Aucun Etudiant selectionné",
         uriPic:
           "https://i.pinimg.com/736x/dc/08/0f/dc080fd21b57b382a1b0de17dac1dfe6.jpg",
-        session:"0",
-        cours:["no_course"]  
+        session: "0",
+        cours: ["no_course"],
       });
     }
   };
@@ -253,29 +242,32 @@ export default function App() {
     let length = etudiantSelectionner.cours.length;
     let coursModifier = etudiantSelectionner.cours;
 
-    const coursDejaLa = listeEtudiants.some(
-      (etudiant) => etudiant.cours.includes(inputId)
-    ); 
+    const coursDejaLa = listeEtudiants.some((etudiant) =>
+      etudiant.cours.includes(inputId)
+    );
 
     //si selectionner == true
     if (selectionner) {
       setEtudiantSelectionner({
         ...etudiantSelectionner,
-        session:inputSession,
+        session: inputSession,
       });
 
-      if (length <= 5 && inputcours != undefined && coursDejaLa === false ) {
+      if (length <= 5 && inputcours != undefined && coursDejaLa === false) {
         //rentre le data dans le tableau coursModifier
         coursModifier.push(inputcours);
         setEtudiantSelectionner({
           ...etudiantSelectionner,
           cours: coursModifier,
         });
-        console.log("cours: ",etudiantSelectionner.cours)
+        console.log("cours: ", etudiantSelectionner.cours);
         //console.log("Session:", session)
-        console.log("Cours déjà là ?:", coursDejaLa)
-      }else{
-        Alert,alert(`La liste est trop longue: ${length} ou le cours est vide: ${inputcours}, session: ${inputSession}`)
+        console.log("Cours déjà là ?:", coursDejaLa);
+      } else {
+        Alert,
+          alert(
+            `La liste est trop longue: ${length} ou le cours est vide: ${inputcours}, session: ${inputSession}`
+          );
       }
     } else {
       Alert.alert("Aucun élève selectionner");
@@ -303,9 +295,9 @@ export default function App() {
         afficher={rendreVisible}
       />
       <AfficherEtudiantSelectionner
-      etudiant={etudiantSelectionner}
-      modalVisible={modalVisible}
-      fermerModal={rendreInVisible}
+        etudiant={etudiantSelectionner}
+        modalVisible={modalVisible}
+        fermerModal={rendreInVisible}
       />
       <StatusBar style="auto" />
     </View>
@@ -361,31 +353,29 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // semi-transparent black background
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // semi-transparent black background
   },
   modalContent: {
     width: 300,
     height: 300,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 10,
     padding: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalText: {
     marginBottom: 15,
-    textAlign: 'center',
-  }, buttonClose: {
-    backgroundColor: '#2196F3',
+    textAlign: "center",
   },
   buttonClose: {
-    backgroundColor: '#2196F3',
+    backgroundColor: "#2196F3",
   },
   textStyle: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
   },
 });
