@@ -83,7 +83,7 @@ const SectionAjouterAUCours = ({
         textChanged={sessionTextChanged}
       />
       <Input
-        titre={titre}
+        titre={titreCours}
         text={cours}
         textChanged={coursTextChanged}
       />
@@ -162,11 +162,11 @@ export default function App() {
 //permettre un défaut lorsque la valeur préférée n'est pas disponible
   i18n.enableFallback  = true;
 //choisir une locale de défaut
-  i18n.defaultLocale = "fr-CA"
+i18n.defaultLocale = "fr-CA"
 
-  i18n.locale = Localization.getLocales()[1].languageCode;
+ i18n.locale = Localization.getLocales()[1].languageCode;
 
-  i18n.locale ="es";
+ // i18n.locale ="es";
 //const pour traduire  
 const TITRE = i18n.t("titre");
 const SELECTIONER = i18n.t("selectioner");

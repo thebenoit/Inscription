@@ -16,7 +16,7 @@ export default{
     },
     en:{
         titre: "Course registrations",
-        selectioner:"Select a Student",
+        selectioner:"student is selected",
         confirmerSelection:"Confirm your Selection",
         eleveSelectionner: "Selected Student",
         soumettre: "submit",
