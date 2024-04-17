@@ -11,7 +11,10 @@ import {
   Modal,
   Pressable,
 } from "react-native";
+
+import * as Localization from "expo-localization";
 import { I18n } from "i18n-js";
+import translation from "./Localisation";
 
 import Header from "./composant/Header";
 
@@ -43,15 +46,18 @@ const SectionSelection = ({
   listeEtudiants,
   selectionner,
   selectionnerEleve,
+  text,
+  eleveSelectionner,
+  confirmerSelection
 }) => {
-  text = "SÉLECTIONNER UN ÉTUDIANT";
+  //text = "SÉLECTIONNER UN ÉTUDIANT";
   return (
     <View style={styles.selectionContainerStyle}>
       <Input titre={"Id"} text={idInput} textChanged={onChangeText} />
       <Etudiant nom={nomEtudiantSelectionner} uriPic={imageURl} />
       <Button text={text} action={selectionnerEleve} />
       <Text style={{ color: "red", textAlign: "center", fontSize: 20 }}>
-        {selectionner ? "Élève sélectionné" : "Confirmé votre Sélection"}
+        {selectionner ? eleveSelectionner : confirmerSelection}
       </Text>
     </View>
   );
@@ -64,22 +70,26 @@ const SectionAjouterAUCours = ({
   coursTextChanged,
   enregistrer,
   afficher,
+  titreSession,
+  titreCours,
+  titreEnregistrer,
+  titreAfficher
 }) => {
   return (
     <View style={styles.ajouterAuCoursContainer}>
       <Input
-        titre={"Session"}
+        titre={titreSession}
         text={session}
         textChanged={sessionTextChanged}
       />
       <Input
-        titre={"Enregistrer élève au cours"}
+        titre={titre}
         text={cours}
         textChanged={coursTextChanged}
       />
 
-      <Button text={"Enregistrer"} action={enregistrer} />
-      <Button text={"Afficher"} action={afficher} />
+      <Button text={titreEnregistrer} action={enregistrer} />
+      <Button text={titreAfficher} action={afficher} />
     </View>
   );
 };
@@ -148,6 +158,28 @@ const AfficherEtudiantSelectionner = ({
   );
 };
 export default function App() {
+  const i18n = new I18n(translation);
+//permettre un défaut lorsque la valeur préférée n'est pas disponible
+  i18n.enableFallback  = true;
+//choisir une locale de défaut
+  i18n.defaultLocale = "fr-CA"
+
+  i18n.locale = Localization.getLocales()[1].languageCode;
+
+  i18n.locale ="es";
+//const pour traduire  
+const TITRE = i18n.t("titre");
+const SELECTIONER = i18n.t("selectioner");
+const CONFIRMER_SELECTION = i18n.t("confirmerSelection");
+const SOUMETTRE = i18n.t("soumettre");
+const ENREGISTRER = i18n.t("enregistrer");
+const AFFICHER = i18n.t("afficher");
+const INPUT_ENREGISTRER_COURS = i18n.t("InputEnregistrerCours");
+const ANNULER = i18n.t("annuler");
+const SESSION = i18n.t("InputSession")
+const AUCUN_SELECTIONNER = i18n.t("aucunSelectionner")
+
+
   const URLDATA =
     "https://raw.githubusercontent.com/thebenoit/Inscription/main/listeEtudiant.json";
 
@@ -270,13 +302,15 @@ export default function App() {
           );
       }
     } else {
-      Alert.alert("Aucun élève selectionner");
+      Alert.alert(AUCUN_SELECTIONNER);
     }
   };
 
+
+
   return (
     <View style={styles.container}>
-      <Header titre="Inscriptions au cours" couleurFond="white" />
+      <Header titre={TITRE} couleurFond="white" />
       <SectionSelection
         idInput={inputId}
         listeEtudiants={listeEtudiants}
@@ -285,6 +319,9 @@ export default function App() {
         onChangeText={setInputId}
         selectionner={selectionner}
         selectionnerEleve={selectionnerEleve}
+        text={SELECTIONER}
+        eleveSelectionner={SELECTIONER}
+        confirmerSelection={CONFIRMER_SELECTION}
       />
       <SectionAjouterAUCours
         session={inputSession}
@@ -293,6 +330,10 @@ export default function App() {
         coursTextChanged={setInputcours}
         enregistrer={enregistrer}
         afficher={rendreVisible}
+        titreEnregistrer={ENREGISTRER}
+        titreAfficher={AFFICHER}
+        titreCours={INPUT_ENREGISTRER_COURS}
+        titreSession={SESSION}
       />
       <AfficherEtudiantSelectionner
         etudiant={etudiantSelectionner}
